@@ -2,6 +2,61 @@
 
 #include <stdlib.h>
 
+// Rotate Logics
+// L-ROTATE ()
+void left_rotate(rbtree* t, node_t* node) {
+  node_t* r_node = node -> right;
+
+  node -> right = r_node -> left;
+
+  if (r_node -> left != t -> nil) {
+    r_node -> left -> parent = node;
+  }
+
+  r_node -> parent = node -> parent;
+
+  if (node -> parent == t -> nil) {
+    t -> root = r_node;
+  }
+  else if ( node -> key == node -> parent -> left -> key) {
+    node -> parent -> left = r_node;
+  }
+  else {
+    node -> parent -> right = r_node;
+  }
+  
+  r_node -> left = node;
+  node -> parent = r_node;
+}
+
+// R-ROTATE ( )
+void right_rotate(rbtree* t, node_t* node) {
+  node_t* l_node = node -> left;
+
+  node -> left = l_node -> right;
+
+  if (l_node -> right != t -> nil) {
+    l_node -> right -> parent = node;
+  }
+
+  l_node -> parent = node -> parent;
+
+  if ( node -> parent == t -> nil ) {
+    t -> root = l_node;
+  }
+  else if ( node -> key == node -> parent -> left -> key ) {
+    node -> parent -> left = l_node;
+  }
+  else {
+    node -> parent -> right = l_node;
+  }
+
+  l_node -> right = node;
+  node -> parent = l_node;
+}
+
+// tree = new_tree(): RB tree 구조체 생성
+// 여러 개의 tree를 생성할 수 있어야 하며 각각 다른 내용들을 저장할 수 있어야 합니다.
 rbtree *new_rbtree(void) {
   rbtree *p = (rbtree *)calloc(1, sizeof(rbtree));
   
@@ -43,8 +98,80 @@ void delete_rbtree(rbtree *t) {
   free(t);
 }
 
+// rbtree_insert_fixup(t, node)
+void rbtree_insert_fixup(rbtree* t, node_t * z) {
+  node_t *uncle; 
+  while ( z -> parent -> color == RBTREE_RED ) {
+    if ( z -> parent == z -> parent -> parent -> right) { // 부모가 조상 노드의 오른쪽인 경우
+      uncle = z -> parent -> parent -> left;
+      if ( uncle -> color == RBTREE_RED ) { // 부모의 형제가 RED인 경우
+        uncle -> color = RBTREE_BLACK;
+        z -> parent -> color = RBTREE_BLACK;
+        z -> parent -> parent -> color = RBTREE_RED;
+        z = z -> parent -> parent;
+      } else {
+        if ( z == z -> parent -> left ) { // 삽입 노드가 부모의 왼쪽인 경우
+          z = z -> parent;
+          right_rotate(t, z);
+        }
+        z -> parent -> color = RBTREE_BLACK; // 삽입 노드가 부모의 오른쪽인 경우
+        z -> parent -> parent -> color = RBTREE_RED;
+        left_rotate(t, z -> parent -> parent);
+      }
+    } else { // z -> parent == z -> parent -> parent -> left // 부모가 조상 노드의 왼쪽인 경우
+      uncle = z -> parent -> parent -> right;
+      if ( uncle -> color == RBTREE_RED ) { // 부모의 형제가 RED인 경우
+        uncle -> color = RBTREE_BLACK;
+        z -> parent -> color = RBTREE_BLACK;
+        z -> parent -> parent -> color = RBTREE_RED;
+        z = z -> parent -> parent;
+      } else {
+        if ( z == z -> parent -> right ) { // 삽입 노드가 부모의 오른쪽인 경우
+          z = z -> parent;
+          left_rotate(t, z);
+        }
+        z -> parent -> color = RBTREE_BLACK; // 삽입 노드가 부모의 왼쪽인 경우
+        z -> parent -> parent -> color = RBTREE_RED;
+        right_rotate(t, z -> parent -> parent);
+      }
+    }
+  }
+  t -> root -> color = RBTREE_BLACK; // root node must BLACK.
+}
+
+// tree_insert(tree, key): key 추가
+// 구현하는 ADT가 multiset이므로 이미 같은 key의 값이 존재해도 하나 더 추가 합니다.
 node_t *rbtree_insert(rbtree *t, const key_t key) {
-  // TODO: implement insert
+  // create new node
+  node_t *new_node = (node_t*)calloc(1, sizeof(node_t));
+  new_node -> key = key;
+
+  node_t * y = t -> nil;
+  node_t * x = t -> root;
+  
+  while ( x != t -> nil ) { // 삽입할 위치의 리프 노드 탐색
+    y = x;
+    if ( x -> key < new_node -> key ) {
+      x = x -> right;
+    } else {
+      x = x -> left;
+    }
+  }
+  new_node -> parent = y;
+
+  if ( y == t -> nil ) { // 삽입한 노드와 부모노드를 연결
+    t -> root = new_node;
+  } else if ( y -> key < new_node -> key ) {
+    y -> right = new_node;
+  } else {
+    y -> left = new_node;
+  }
+
+  new_node -> color = RBTREE_RED;
+  new_node -> left = t -> nil;
+  new_node -> right = t -> nil;
+  rbtree_insert_fixup(t, new_node); // RB Tree의 규칙에 위배되는지 확인
+
   return t->root;
 }
 

@@ -263,7 +263,7 @@ void rbtree_erase_fixup(rbtree* t, node_t* x) {
           left_rotate(t, uncle);
           uncle = x -> parent -> left;
         }
-uncle -> color = x -> parent -> color; // 형제 노드의 왼쪽 노드가 RED인 경우 -> CASE 4
+        uncle -> color = x -> parent -> color; // 형제 노드의 왼쪽 노드가 RED인 경우 -> CASE 4
         x -> parent -> color = RBTREE_BLACK;
         uncle -> left -> color = RBTREE_BLACK;
         right_rotate(t, x -> parent);

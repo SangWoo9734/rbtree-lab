@@ -4,12 +4,42 @@
 
 rbtree *new_rbtree(void) {
   rbtree *p = (rbtree *)calloc(1, sizeof(rbtree));
-  // TODO: initialize struct if needed
+  
+  // NIL Node 메모리 동적 할당
+  node_t *nil = (node_t*)malloc(sizeof(node_t));
+  
+
+  // NIL Node 초기화
+  nil->color = RBTREE_BLACK;
+  nil->key = 0;
+  nil->left = nil;
+  nil->right = nil;
+  nil->parent = nil;
+
+  // 트리 속성 초기화
+  p -> nil = nil;
+  p -> root = nil;
+
   return p;
 }
 
+// delete_rbtree_node : 트리 내 노드를 순회하며 노드의 메모리를 반환
+void delete_rbtree_node(node_t *node, node_t *nil) {
+  if ( node != nil) {
+    delete_rbtree_node(node -> left, nil);
+    delete_rbtree_node(node -> right, nil);
+    free(node);
+  }
+}
+
+// delete_tree(tree): RB tree 구조체가 차지했던 메모리 반환
+// 해당 tree가 사용했던 메모리를 전부 반환해야 합니다. (valgrind로 나타나지 않아야 함)
 void delete_rbtree(rbtree *t) {
-  // TODO: reclaim the tree nodes's memory
+  // root 부터 노드를 순회
+  delete_rbtree_node(t -> root, t -> nil);
+  
+  // rbtree 메모리 반환
+  free(t -> nil);
   free(t);
 }
 

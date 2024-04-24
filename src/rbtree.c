@@ -175,11 +175,30 @@ node_t *rbtree_insert(rbtree *t, const key_t key) {
   return t->root;
 }
 
+// ptr = tree_find(tree, key)
+// RB tree내에 해당 key가 있는지 탐색하여 있으면 해당 node pointer 반환
+// 해당하는 node가 없으면 NULL 반환
 node_t *rbtree_find(const rbtree *t, const key_t key) {
-  // TODO: implement find
-  return t->root;
+  
+  node_t *node = t->root;
+
+  while ( 1 ){
+    if (node == t -> nil) { // NIL노드를 만나는 경우 해당 노드가 없다고 판단, NULL 반환
+        return NULL;
+    }
+    else if (node -> key > key) {
+      node = node -> left;
+    }
+    else if (node -> key < key) {
+      node = node -> right;
+    }
+    else { // 해당 노드를 찾은 경우
+      return node;
+    }
+  }
 }
 
+// ptr = tree_min(tree): RB tree 중 최소 값을 가진 node pointer 반환
 node_t *rbtree_min(const rbtree *t) {
   // TODO: implement find
   return t->root;
